@@ -18,6 +18,13 @@ public interface UserRepository extends JpaRepository<User,Integer> {
     @Query("SELECT new com.edwin.clinic.wrapper.UserWrapper(u.id, u.name, u.email, u.contactNumber, u.status) FROM User u ")
     List<UserWrapper> getAllUser();
 
+    @Modifying
+    @Transactional
+    @Query("UPDATE User u SET u.name = :name, u.contactNumber = :contactNumber WHERE u.id = :id")
+    Integer updateUserInfo(@Param("name") String name,
+                           @Param("contactNumber") String contactNumber,
+                           @Param("id") Integer id);
+
 
 //    List<String> getAllAdmin();
 

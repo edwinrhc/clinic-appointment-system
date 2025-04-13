@@ -19,10 +19,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -107,26 +104,46 @@ public class UserServiceImpl implements UserService {
 
         return new ResponseEntity<>(new ArrayList<>(),HttpStatus.INTERNAL_SERVER_ERROR);
     }
-/*
-    @Override
-    public ResponseEntity<String> update(Map<String, String> requestMap) {
-        return null;
-    }
 
     @Override
-    public ResponseEntity<String> checKToken() {
-        return null;
-    }
+    public ResponseEntity<String> updateUser(Map<String,String> requestMap) {
+        try {
+            if(jwtFilter.isAdmin()){
+                Optional<User> optional = userRepository.findById(Integer.parseInt(requestMap.get("id")));
+                if(!optional.isEmpty()){
+                    userRepository.updateUserInfo(
+                            requestMap.get("name"),
+                            requestMap.get("contactNumber"),
+                            Integer.parseInt(requestMap.get("id"))
+                            );
+                    List<String> requiredFields = List.of("id","name","contactNumber");
+                    List<String> missingFields = new ArrayList<>();
 
-    @Override
-    public ResponseEntity<String> changePassword(Map<String, String> requestMap) {
-        return null;
-    }
+                    for(String field : requiredFields){
+                        if(!requestMap.containsKey(field) || requestMap.get(field).isBlank()) {
+                            missingFields.add(field);
+                        }
+                    }
 
-    @Override
-    public ResponseEntity<String> forgotPassword(Map<String, String> requestMap) {
-        return null;
-    }*/
+                    if (!missingFields.isEmpty()) {
+
+                        String mensaje ="The fllowing fields are missing: " + String.join(", ", missingFields);
+                        log.warn(mensaje,HttpStatus.BAD_REQUEST);
+                        return ClinicUtils.getResponseEntity(mensaje, HttpStatus.BAD_REQUEST);
+                    }
+
+                    return ClinicUtils.getResponseEntity("User Status Updated Successfully",HttpStatus.OK) ;
+                }else{
+                    return ClinicUtils.getResponseEntity("User id doesn't not exist", HttpStatus.OK);
+                }
+            }else{
+                return ClinicUtils.getResponseEntity(ClinicConstants.UNAUTHORIZED_ACCESS,HttpStatus.UNAUTHORIZED);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return ClinicUtils.getResponseEntity(ClinicConstants.SOMETHING_WENT_WRONG,HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 
     private boolean validateSignUpMap(Map<String,String> requestMap){
         if(requestMap.containsKey("name") && requestMap.containsKey("contactNumber")
