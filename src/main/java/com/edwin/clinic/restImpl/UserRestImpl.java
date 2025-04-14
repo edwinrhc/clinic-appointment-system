@@ -23,9 +23,9 @@ public class UserRestImpl implements UserRest {
 
     @Override
     public ResponseEntity<String> signUp(Map<String, String> requestMap) {
-        try{
+        try {
             return userService.signUp(requestMap);
-        }catch (Exception ex){
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
         return ClinicUtils.getResponseEntity(ClinicConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -33,9 +33,9 @@ public class UserRestImpl implements UserRest {
 
     @Override
     public ResponseEntity<String> login(Map<String, String> requestMap) {
-        try{
+        try {
             return userService.login(requestMap);
-        }catch (Exception ex){
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
         return ClinicUtils.getResponseEntity(ClinicConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -43,19 +43,19 @@ public class UserRestImpl implements UserRest {
 
     @Override
     public ResponseEntity<List<UserWrapper>> getAllUser() {
-        try{
+        try {
             return userService.getAllUser();
-        }catch(Exception ex){
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
-        return new ResponseEntity<List<UserWrapper>>(new ArrayList<>(),HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<List<UserWrapper>>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @Override
     public ResponseEntity<String> update(Map<String, String> requestMap) {
         try {
             return userService.updateUser(requestMap);
-        }catch(Exception ex){
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
         return ClinicUtils.getResponseEntity(ClinicConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -63,11 +63,32 @@ public class UserRestImpl implements UserRest {
 
     @Override
     public ResponseEntity<String> updateStatus(Map<String, String> requestMap) {
-        try{
+        try {
             return userService.updateStatus(requestMap);
-        }catch (Exception ex){
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
         return ClinicUtils.getResponseEntity(ClinicConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+    @Override
+    public ResponseEntity<String> forgotPassword(Map<String, String> requestMap) {
+        try {
+            return userService.forgotPassword(requestMap);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return ClinicUtils.getResponseEntity(ClinicConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @Override
+    public ResponseEntity<String> resetPassword(Map<String, String> requestMap) {
+        try {
+            return userService.resetPassword(requestMap);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return ClinicUtils.getResponseEntity(ClinicConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
 }

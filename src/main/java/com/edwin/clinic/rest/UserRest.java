@@ -34,5 +34,11 @@ public interface UserRest {
     @PostMapping(path="/status")
     public ResponseEntity<String> updateStatus(@RequestBody(required = true) Map<String,String> requestMap);
 
+    @PostMapping(path="/forgotPassword")
+    public ResponseEntity<String> forgotPassword(@RequestBody Map<String,String> requestMap);
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<String> resetPassword(@RequestBody(required = true) Map<String,String> requestMap);
+
 
 }

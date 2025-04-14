@@ -14,12 +14,14 @@ public interface UserService {
     ResponseEntity<List<UserWrapper>> getAllUser();
     ResponseEntity<String> updateUser(Map<String,String> requestMap);
     ResponseEntity<String> updateStatus(Map<String,String> requestMap);
+    ResponseEntity<String> forgotPassword(Map<String, String> requestMap);
+    ResponseEntity<String> resetPassword(Map<String, String> requestMap);
 
 //    ResponseEntity<String>update(Map<String,String> requestMap);
 //    ResponseEntity<String> checKToken();
 //
 //    ResponseEntity<String> changePassword(Map<String, String> requestMap);
 //
-//    ResponseEntity<String> forgotPassword(Map<String, String> requestMap);
+
 }
 
