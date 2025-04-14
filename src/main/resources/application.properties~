@@ -35,4 +35,3 @@ spring.mail.username=780add3c6c5ef5
 spring.mail.password=2400e88be7a649
 spring.mail.properties.mail.smtp.auth=true
 spring.mail.properties.mail.smtp.starttls.enable=true
-

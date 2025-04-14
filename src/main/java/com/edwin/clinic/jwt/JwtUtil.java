@@ -1,4 +1,4 @@
-package com.edwin.clinic.utils;
+package com.edwin.clinic.jwt;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -20,7 +20,7 @@ import java.util.function.Function;
 public class JwtUtil {
 
     // Clave segura en Base64 (copiada desde consola)
-    private static final String SECRET = "VYcX36DlFDU41HcX6IhdIX3JPNyFnkNwNDfANT1GNmw=";
+    private static final String SECRET = "KBpfFa2CChIojkqzkB05VmkoSH3cEqXEipClogZ35k4=";
     // Clave secreta decodificada
     private final SecretKey key = Keys.hmacShaKeyFor(Base64.getDecoder().decode(SECRET));
 
@@ -56,17 +56,7 @@ public class JwtUtil {
         return createToken(claims, username);
     }
 
-/*    private String createToken(Map<String,Object> claims, String subject){
-        return Jwts.builder()
-                .setClaims(claims)
-                .setSubject(subject)
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10))
-                .signWith(Keys.hmacShaKeyFor(SECRET.getBytes()), SignatureAlgorithm.HS256)
-                .compact();
-
-    }*/
-private String createToken(Map<String, Object> claims, String subject) {
+    private String createToken(Map<String, Object> claims, String subject) {
     return Jwts.builder()
             .setClaims(claims)
             .setSubject(subject)

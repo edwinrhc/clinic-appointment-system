@@ -15,30 +15,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-
-/*@Configuration
-public class SecurityConfig {
-
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
-        http
-            .csrf(csrf -> csrf.disable())
-            .authorizeHttpRequests( auth -> auth
-                .requestMatchers(
-                        "/swagger-ui/**",
-                        "/swagger-ui.html",
-                        "/v3/api-docs/**",
-                        "/api-docs/**",
-                        "/api/users/**",
-                        "/user/**"
-                ).permitAll()
-                .anyRequest().authenticated()
-            );
-        return http.build();
-    }
-
-}*/
-
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig{

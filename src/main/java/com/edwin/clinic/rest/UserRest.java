@@ -31,6 +31,8 @@ public interface UserRest {
     @PostMapping(path="/update")
     public ResponseEntity<String> update(@RequestBody(required = true) Map<String,String> requestMap);
 
+    @PostMapping(path="/status")
+    public ResponseEntity<String> updateStatus(@RequestBody(required = true) Map<String,String> requestMap);
 
 
 }

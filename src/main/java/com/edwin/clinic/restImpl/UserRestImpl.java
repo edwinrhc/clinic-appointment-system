@@ -60,4 +60,14 @@ public class UserRestImpl implements UserRest {
         }
         return ClinicUtils.getResponseEntity(ClinicConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+    @Override
+    public ResponseEntity<String> updateStatus(Map<String, String> requestMap) {
+        try{
+            return userService.updateStatus(requestMap);
+        }catch (Exception ex){
+            ex.printStackTrace();
+        }
+        return ClinicUtils.getResponseEntity(ClinicConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 }

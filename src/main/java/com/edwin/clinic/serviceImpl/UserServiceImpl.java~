@@ -196,7 +196,7 @@ public class UserServiceImpl implements UserService {
         return user;
     }
 
-/*    private void sendMailToAllAdmin(String status, String user, List<String> allAdmin) {
+    private void sendMailToAllAdmin(String status, String user, List<String> allAdmin) {
         //Eliminamos el correo de la misma persona que envia
         allAdmin.remove(jwtFilter.getCurrentUser());
         if( status!=null && status.equalsIgnoreCase("true")){
@@ -205,27 +205,28 @@ public class UserServiceImpl implements UserService {
             emailUtils.sendSimpleMessage(jwtFilter.getCurrentUser(),"Account Disabled","USER:- "+ user +"\n is disabled by \nADMIN:-"+ jwtFilter.getCurrentUser(),allAdmin);
         }
 
-    }*/
-public void sendMailToAllAdmin(String status, String userEmail, List<String> adminEmails) {
-    String adminEmail = jwtFilter.getCurrentUser();
-
-    String subject = "✔ Usuario " + userEmail + " ha sido " + status.toUpperCase();
-
-    String htmlMsg = "<h2 style='color:#2e6da4;'>🔔 Actualización de estado de usuario</h2>" +
-            "<p><b>👤 Usuario:</b> " + userEmail + "<br>" +
-            "<b>🔁 Nuevo estado:</b> <span style='color:" + (status.equalsIgnoreCase("approved") ? "green" : "red") + ";'>" + status.toUpperCase() + "</span><br>" +
-            "<b>👮‍♂️ Aprobado por:</b> " + adminEmail + "<br>" +
-            "<b>📅 Fecha:</b> " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")) + "</p>";
-
-    try {
-        emailUtils.sendHtmlMessage(adminEmail, subject, htmlMsg, adminEmails);
-    } catch (MessagingException e) {
-        e.printStackTrace();
     }
-}
 
 
+    public void sendMailToAllAdmin(String status, String userEmail, List<String> adminEmails) {
+        String adminEmail = jwtFilter.getCurrentUser();
 
+        String subject = "✔ Usuario " + userEmail + " ha sido " + status.toUpperCase();
+
+        String htmlMsg = "<h2 style='color:#2e6da4;'>🔔 Actualización de estado de usuario</h2>" +
+                "<p><b>👤 Usuario:</b> " + userEmail + "<br>" +
+                "<b>🔁 Nuevo estado:</b> <span style='color:" + (status.equalsIgnoreCase("approved") ? "green" : "red") + ";'>" + status.toUpperCase() + "</span><br>" +
+                "<b>👮‍♂️ Aprobado por:</b> " + adminEmail + "<br>" +
+                "<b>📅 Fecha:</b> " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")) + "</p>";
+
+        try {
+            emailUtils.sendHtmlMessage(adminEmail, subject, htmlMsg, adminEmails);
+        } catch (MessagingException e) {
+            e.printStackTrace();
+        } catch (MessagingException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
 
 
