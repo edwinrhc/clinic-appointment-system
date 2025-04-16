@@ -13,6 +13,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -62,6 +64,25 @@ public class DoctorServiceImpl implements DoctorService {
         doctor.setStatus("true");
         return doctor;
     }
+
+
+    @Override
+    public ResponseEntity<List<DoctorDTO>> getAllDoctors() {
+
+        try {
+            if(jwtFilter.isAdmin()) {
+                return new ResponseEntity<>(doctorRepository.getAllDoctors(), HttpStatus.OK);
+            }else{
+                return new ResponseEntity<>(doctorRepository.getAllDoctors(), HttpStatus.UNAUTHORIZED);
+            }
+        }catch (Exception ex){
+            ex.printStackTrace();
+        }
+
+        return new ResponseEntity<>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
+
+    }
+
 
 
 }
