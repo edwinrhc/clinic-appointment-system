@@ -13,4 +13,6 @@ public interface DoctorService {
 
     ResponseEntity<List<DoctorDTO>>getAllDoctors();
 
+    ResponseEntity<?>getDoctorBySpecialty(String specialty);
+
 }

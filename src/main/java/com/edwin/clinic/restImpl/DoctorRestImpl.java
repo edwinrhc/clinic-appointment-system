@@ -41,4 +41,14 @@ public class DoctorRestImpl implements DoctorRest {
           return new ResponseEntity<>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
        }
     }
+
+    @Override
+    public ResponseEntity<?> getDoctorsBySpecialty(String specialty) {
+        try{
+            return doctorService.getDoctorBySpecialty(specialty);
+        }catch (Exception ex){
+            ex.printStackTrace();
+            return new ResponseEntity<>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

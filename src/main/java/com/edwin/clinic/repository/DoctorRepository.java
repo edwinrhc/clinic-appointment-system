@@ -13,5 +13,11 @@ public interface DoctorRepository  extends JpaRepository<Doctor,Integer> {
     @Query("SELECT new com.edwin.clinic.dto.DoctorDTO(d.id, d.firstName, d.lastName, d.specialty, d.email, d.phone) FROM Doctor d")
     List<DoctorDTO> getAllDoctors();
 
+    @Query("SELECT new com.edwin.clinic.dto.DoctorDTO(d.id, d.firstName, d.lastName, d.specialty, d.email, d.phone) " +
+            "FROM Doctor d WHERE LOWER(d.specialty) = LOWER(:specialty)")
+    List<DoctorDTO> findBySpecialty(String specialty);
+
     Doctor findByEmail(String email);
+
+
 }

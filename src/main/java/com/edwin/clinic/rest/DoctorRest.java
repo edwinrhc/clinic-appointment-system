@@ -4,10 +4,7 @@ package com.edwin.clinic.rest;
 import com.edwin.clinic.dto.DoctorDTO;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
@@ -21,6 +18,9 @@ public interface DoctorRest {
 
     @GetMapping(path = "/get")
     public ResponseEntity<List<DoctorDTO>> get();
+
+    @GetMapping(path = "/filter")
+    public ResponseEntity<?> getDoctorsBySpecialty(@RequestParam("specialty")String specialty);
 
 
 }

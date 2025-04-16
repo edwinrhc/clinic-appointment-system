@@ -13,10 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -35,19 +32,19 @@ public class DoctorServiceImpl implements DoctorService {
 
         log.info("Trying to register new doctor:  {}", doctorDTO);
         try {
-            if(jwtFilter.isAdmin()) {
+            if (jwtFilter.isAdmin()) {
                 Doctor validEmail = doctorRepository.findByEmail(doctorDTO.getEmail());
-                if(Objects.isNull(validEmail)) {
+                if (Objects.isNull(validEmail)) {
                     Doctor doctor = toEntity(doctorDTO);
                     doctorRepository.save(doctor);
                     return ClinicUtils.getResponseEntity("Doctor added successfully", HttpStatus.CREATED);
-                }else{
+                } else {
                     return ResponseEntity.status(HttpStatus.CONFLICT).body("Email already exists");
                 }
-            }else{
-                return ClinicUtils.getResponseEntity(ClinicConstants.UNAUTHORIZED_ACCESS,HttpStatus.UNAUTHORIZED);
+            } else {
+                return ClinicUtils.getResponseEntity(ClinicConstants.UNAUTHORIZED_ACCESS, HttpStatus.UNAUTHORIZED);
             }
-        }catch (Exception ex){
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
 
@@ -70,12 +67,12 @@ public class DoctorServiceImpl implements DoctorService {
     public ResponseEntity<List<DoctorDTO>> getAllDoctors() {
 
         try {
-            if(jwtFilter.isAdmin()) {
+            if (jwtFilter.isAdmin()) {
                 return new ResponseEntity<>(doctorRepository.getAllDoctors(), HttpStatus.OK);
-            }else{
+            } else {
                 return new ResponseEntity<>(doctorRepository.getAllDoctors(), HttpStatus.UNAUTHORIZED);
             }
-        }catch (Exception ex){
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
 
@@ -83,6 +80,27 @@ public class DoctorServiceImpl implements DoctorService {
 
     }
 
+    @Override
+    public ResponseEntity<?> getDoctorBySpecialty(String specialty) {
+        try {
+            if (jwtFilter.isAdmin()) {
+                List<DoctorDTO> doctors = doctorRepository.findBySpecialty(specialty);
 
+                if (doctors.isEmpty()) {
+                    Map<String, Object> response = new HashMap<>();
+                    response.put("status", "empty");
+                    response.put("message", "No doctors found with specialty: " + specialty);
+                    return new ResponseEntity<>(response, HttpStatus.OK);
+                }
+
+                return new ResponseEntity<>(doctors, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>("Unauthorized access", HttpStatus.UNAUTHORIZED);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return new ResponseEntity<>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 
 }
