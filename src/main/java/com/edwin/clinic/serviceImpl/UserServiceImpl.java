@@ -2,6 +2,10 @@ package com.edwin.clinic.serviceImpl;
 
 import com.edwin.clinic.configuration.AppProperties;
 import com.edwin.clinic.constants.ClinicConstants;
+import com.edwin.clinic.dto.user.LoginDTO;
+import com.edwin.clinic.dto.user.UserDTO;
+import com.edwin.clinic.dto.user.UserListDTO;
+import com.edwin.clinic.dto.user.UserUpdateDTO;
 import com.edwin.clinic.entity.PasswordResetToken;
 import com.edwin.clinic.entity.User;
 import com.edwin.clinic.jwt.CustomerUsersDetailsService;
@@ -13,12 +17,10 @@ import com.edwin.clinic.utils.ClinicUtils;
 import com.edwin.clinic.jwt.JwtUtil;
 import com.edwin.clinic.utils.EmailUtils;
 import com.edwin.clinic.wrapper.UserWrapper;
-import com.google.common.base.Strings;
 import jakarta.mail.MessagingException;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -27,9 +29,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.swing.text.html.Option;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -65,7 +67,7 @@ public class UserServiceImpl implements UserService {
     private AppProperties appProperties;
 
 
-    @Override
+/*    @Override
     public ResponseEntity<String> signUp(Map<String, String> requestMap) {
 
         log.info("Inside signup {}", requestMap);
@@ -83,13 +85,42 @@ public class UserServiceImpl implements UserService {
             }
         } catch (Exception ex) {
             ex.printStackTrace();
-            ;
+
         }
 
         return ClinicUtils.getResponseEntity(ClinicConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+    }*/
 
     @Override
+    public ResponseEntity<String> signUp(UserDTO userDTO) {
+        log.info("Trying to register User: {}", userDTO );
+        try{
+           User validEmail = userRepository.findByEmail(userDTO.getEmail());
+           if(Objects.isNull(validEmail)) {
+               User newUser = toEntity(userDTO);
+               userRepository.save(newUser);
+               return ClinicUtils.getResponseEntity("Successfully Registered", HttpStatus.OK);
+           }else {
+               return ResponseEntity.status(HttpStatus.CONFLICT).body("Email already exists");
+           }
+        }catch (Exception ex){
+            ex.printStackTrace();
+        }
+        return ClinicUtils.getResponseEntity(ClinicConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    private User toEntity(UserDTO userDTO){
+        User user = new User();
+        user.setName(userDTO.getName());
+        user.setEmail(userDTO.getEmail());
+        user.setContactNumber(userDTO.getContactNumber());
+        user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+        user.setRole("user");
+        user.setStatus("false");
+        return user;
+    }
+
+/*    @Override
     public ResponseEntity<String> login(Map<String, String> requestMap) {
         log.info("Inside login");
         try {
@@ -111,6 +142,41 @@ public class UserServiceImpl implements UserService {
         }
 
         return new ResponseEntity<String>("{\"message\":\"" + "Bad Credentials." + "\"}", HttpStatus.BAD_REQUEST);
+    }*/
+
+    public ResponseEntity<String> login(LoginDTO loginDTO) {
+        log.info("Inside login");
+        try{
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(loginDTO.getEmail(), loginDTO.getPassword()));
+            if(authentication.isAuthenticated()) {
+                if(customerUsersDetailsService.getUserDetail().getStatus().equalsIgnoreCase("true")){
+                    return new ResponseEntity<String>("{\"token\":\"" +
+                            jwtUtil.generateToken(customerUsersDetailsService.getUserDetail().getEmail(),
+                                    customerUsersDetailsService.getUserDetail().getRole()) + "\"}", HttpStatus.OK);
+                }else{
+                    return new ResponseEntity<String>("{\"message\":\"" + "Wait for admin approval." + "\"}", HttpStatus.BAD_REQUEST);
+                }
+            }
+        }catch (Exception ex){
+            log.error("{}", ex);
+        }
+        return new ResponseEntity<String>("{\"message\":\"" + "Bad Credentials." + "\"}", HttpStatus.BAD_REQUEST);
+    }
+
+    @Override
+    public ResponseEntity<List<UserListDTO>> listUsers() {
+       try{
+           if (jwtFilter.isAdmin()) {
+               return new ResponseEntity<>(userRepository.listUsers(), HttpStatus.OK);
+           } else {
+               return new ResponseEntity<>(new ArrayList<>(), HttpStatus.UNAUTHORIZED);
+           }
+
+       } catch (Exception ex) {
+           ex.printStackTrace();
+       }
+        return new ResponseEntity<>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @Override
@@ -163,6 +229,27 @@ public class UserServiceImpl implements UserService {
                 return ClinicUtils.getResponseEntity(ClinicConstants.UNAUTHORIZED_ACCESS, HttpStatus.UNAUTHORIZED);
             }
         } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return ClinicUtils.getResponseEntity(ClinicConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @Override
+    public ResponseEntity<String> updateUserProfile(UserUpdateDTO userUpdateDTO) {
+        try{
+            String email = customerUsersDetailsService.getUserDetail().getEmail();
+            User user = userRepository.findByEmail(email);
+            if (user == null) {
+                return ClinicUtils.getResponseEntity("User not found", HttpStatus.NOT_FOUND);
+            }
+                // Actualizamos solo el usuario autenticado
+                user.setName(userUpdateDTO.getName());
+                user.setContactNumber(userUpdateDTO.getContactNumber());
+                userRepository.save(user);
+
+            return ClinicUtils.getResponseEntity("User profile updated successfully", HttpStatus.OK);
+
+        }catch (Exception ex){
             ex.printStackTrace();
         }
         return ClinicUtils.getResponseEntity(ClinicConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -229,11 +316,7 @@ public class UserServiceImpl implements UserService {
         String token = requestMap.get("token").trim();
         String newPassword = requestMap.get("newPassword");
 
-
-
         Optional<PasswordResetToken> tokenOpt = passwordResetTokenRepository.findByToken(token);
-
-
 
         if (tokenOpt.isEmpty()) {
             return ClinicUtils.getResponseEntity("Token no encontrado", HttpStatus.BAD_REQUEST);

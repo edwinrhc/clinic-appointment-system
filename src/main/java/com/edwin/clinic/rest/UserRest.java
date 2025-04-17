@@ -1,9 +1,14 @@
 package com.edwin.clinic.rest;
 
+import com.edwin.clinic.dto.user.LoginDTO;
+import com.edwin.clinic.dto.user.UserDTO;
+import com.edwin.clinic.dto.user.UserListDTO;
+import com.edwin.clinic.dto.user.UserUpdateDTO;
 import com.edwin.clinic.wrapper.UserWrapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,13 +25,19 @@ public interface UserRest {
             @ApiResponse(responseCode = "500", description = "Error interno del servidor")
     })
     @PostMapping(path = "/signup")
-    public ResponseEntity<String> signUp(@RequestBody(required = true)Map<String,String> requestMap);
+    public ResponseEntity<String> signUp(@RequestBody @Valid UserDTO userDto);
 
     @PostMapping(path="/login")
-    public ResponseEntity<String> login(@RequestBody(required = true) Map<String,String> requestMap);
+    public ResponseEntity<String> login(@RequestBody @Valid LoginDTO loginDTO);
 
     @GetMapping("/get")
-    public ResponseEntity<List<UserWrapper>> getAllUser();
+    public ResponseEntity<List<UserListDTO>> getAllUser();
+
+    @PutMapping("/update-profile")
+    public ResponseEntity<String> updateProfile(@RequestBody @Valid UserUpdateDTO dto);
+
+
+
 
     @PostMapping(path="/update")
     public ResponseEntity<String> update(@RequestBody(required = true) Map<String,String> requestMap);

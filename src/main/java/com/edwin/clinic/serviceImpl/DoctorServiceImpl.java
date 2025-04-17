@@ -70,7 +70,7 @@ public class DoctorServiceImpl implements DoctorService {
             if (jwtFilter.isAdmin()) {
                 return new ResponseEntity<>(doctorRepository.getAllDoctors(), HttpStatus.OK);
             } else {
-                return new ResponseEntity<>(doctorRepository.getAllDoctors(), HttpStatus.UNAUTHORIZED);
+                return new ResponseEntity<>(new ArrayList<>(), HttpStatus.UNAUTHORIZED);
             }
         } catch (Exception ex) {
             ex.printStackTrace();
