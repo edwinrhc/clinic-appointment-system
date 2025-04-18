@@ -21,23 +21,12 @@ public interface UserService {
     ResponseEntity<String> updateUserStatus(UserStatusDTO userStatusDTO);
 
 
-    //TODO: ELIMINARLO
-
-
     ResponseEntity<String> updateUser(Map<String,String> requestMap);
 
     ResponseEntity<String> forgotPassword(Map<String, String> requestMap);
     ResponseEntity<String> resetPassword(Map<String, String> requestMap);
 
 
-
-
-
-//    ResponseEntity<String>update(Map<String,String> requestMap);
-//    ResponseEntity<String> checKToken();
-//
-//    ResponseEntity<String> changePassword(Map<String, String> requestMap);
-//
 
 }
 

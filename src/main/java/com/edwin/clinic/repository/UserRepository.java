@@ -13,9 +13,6 @@ import java.util.List;
 
 public interface UserRepository extends JpaRepository<User,Integer> {
 
-//    User findByEmailId(@Param("email") String email);
-
-
 
     @Query("SELECT new com.edwin.clinic.dto.user.UserListDTO(u.id,u.name,u.email,u.contactNumber,u.role,u.status) FROM User u")
     List<UserListDTO> listUsers();

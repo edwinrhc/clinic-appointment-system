@@ -43,4 +43,8 @@ public class User  {
     @Column(name="role")
     private String role;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="specialty_id")
+    private Specialty specialty;
+
 }
