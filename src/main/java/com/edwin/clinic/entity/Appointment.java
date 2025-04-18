@@ -24,15 +24,17 @@ public class Appointment {
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     private Long id;
 
-
-    //TODO: patient
-
-
     private LocalDate date;
     private LocalTime hora;
-
     private String status;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="patient_id")
+    private User patient;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="doctor_id")
+    private User doctor;
 
 
 }
