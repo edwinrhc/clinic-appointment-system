@@ -2,10 +2,7 @@ package com.edwin.clinic.serviceImpl;
 
 import com.edwin.clinic.configuration.AppProperties;
 import com.edwin.clinic.constants.ClinicConstants;
-import com.edwin.clinic.dto.user.LoginDTO;
-import com.edwin.clinic.dto.user.UserDTO;
-import com.edwin.clinic.dto.user.UserListDTO;
-import com.edwin.clinic.dto.user.UserUpdateDTO;
+import com.edwin.clinic.dto.user.*;
 import com.edwin.clinic.entity.PasswordResetToken;
 import com.edwin.clinic.entity.User;
 import com.edwin.clinic.jwt.CustomerUsersDetailsService;
@@ -16,7 +13,6 @@ import com.edwin.clinic.service.UserService;
 import com.edwin.clinic.utils.ClinicUtils;
 import com.edwin.clinic.jwt.JwtUtil;
 import com.edwin.clinic.utils.EmailUtils;
-import com.edwin.clinic.wrapper.UserWrapper;
 import jakarta.mail.MessagingException;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
@@ -67,30 +63,6 @@ public class UserServiceImpl implements UserService {
     private AppProperties appProperties;
 
 
-/*    @Override
-    public ResponseEntity<String> signUp(Map<String, String> requestMap) {
-
-        log.info("Inside signup {}", requestMap);
-        try {
-            if (validateSignUpMap(requestMap)) {
-                User user = userRepository.findByEmail(requestMap.get("email"));
-                if (Objects.isNull(user)) {
-                    userRepository.save(getUserFromMap(requestMap));
-                    return ClinicUtils.getResponseEntity("Successfully Registered", HttpStatus.OK);
-                } else {
-                    return ClinicUtils.getResponseEntity("Email already exits", HttpStatus.BAD_REQUEST);
-                }
-            } else {
-                return ClinicUtils.getResponseEntity(ClinicConstants.INVALID_DATA, HttpStatus.BAD_REQUEST);
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-
-        }
-
-        return ClinicUtils.getResponseEntity(ClinicConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
-    }*/
-
     @Override
     public ResponseEntity<String> signUp(UserDTO userDTO) {
         log.info("Trying to register User: {}", userDTO );
@@ -119,30 +91,6 @@ public class UserServiceImpl implements UserService {
         user.setStatus("false");
         return user;
     }
-
-/*    @Override
-    public ResponseEntity<String> login(Map<String, String> requestMap) {
-        log.info("Inside login");
-        try {
-            Authentication auth = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(requestMap.get("email"), requestMap.get("password")));
-
-            if (auth.isAuthenticated()) {
-                if (customerUsersDetailsService.getUserDetail().getStatus().equalsIgnoreCase("true")) {
-                    return new ResponseEntity<String>("{\"token\":\"" +
-                            jwtUtil.generateToken(customerUsersDetailsService.getUserDetail().getEmail(),
-                                    customerUsersDetailsService.getUserDetail().getRole()) + "\"}", HttpStatus.OK);
-                } else {
-                    return new ResponseEntity<String>("{\"message\":\"" + "Wait for admin approval." + "\"}", HttpStatus.BAD_REQUEST);
-                }
-            }
-
-        } catch (Exception ex) {
-            log.error("{}", ex);
-        }
-
-        return new ResponseEntity<String>("{\"message\":\"" + "Bad Credentials." + "\"}", HttpStatus.BAD_REQUEST);
-    }*/
 
     public ResponseEntity<String> login(LoginDTO loginDTO) {
         log.info("Inside login");
@@ -176,21 +124,6 @@ public class UserServiceImpl implements UserService {
        } catch (Exception ex) {
            ex.printStackTrace();
        }
-        return new ResponseEntity<>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-    @Override
-    public ResponseEntity<List<UserWrapper>> getAllUser() {
-        try {
-            if (jwtFilter.isAdmin()) {
-                return new ResponseEntity<>(userRepository.getAllUser(), HttpStatus.OK);
-            } else {
-                return new ResponseEntity<>(new ArrayList<>(), HttpStatus.UNAUTHORIZED);
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-
         return new ResponseEntity<>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
@@ -235,6 +168,38 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public ResponseEntity<String> updateUserStatus(UserStatusDTO userStatusDTO) {
+        try{
+            if(jwtFilter.isAdmin()) {
+
+                log.info("Admin confirmado");
+                log.info("Buscando ID: {}", userStatusDTO.getId());
+
+                Optional<User> optional = userRepository.findById(userStatusDTO.getId());
+                if(!optional.isEmpty()) {
+                    userRepository.updateUserStatus(
+                            userStatusDTO.getStatus(),
+                            userStatusDTO.getId());
+                    // Enviamos notificacion
+                    sendMailToAllAdmin(
+                            userStatusDTO.getStatus(),
+                            optional.get().getEmail(),
+                            userRepository.getAllAdminEmails()
+                    );
+                    return ClinicUtils.getResponseEntity("User Status Updated Successfully", HttpStatus.OK);
+                }else{
+                    return ClinicUtils.getResponseEntity("User id doesn't not exist", HttpStatus.OK);
+                }
+            }else{
+                return ClinicUtils.getResponseEntity(ClinicConstants.UNAUTHORIZED_ACCESS, HttpStatus.UNAUTHORIZED);
+            }
+        }catch (Exception ex){
+            ex.printStackTrace();
+        }
+        return ClinicUtils.getResponseEntity(ClinicConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @Override
     public ResponseEntity<String> updateUserProfile(UserUpdateDTO userUpdateDTO) {
         try{
             String email = customerUsersDetailsService.getUserDetail().getEmail();
@@ -255,26 +220,6 @@ public class UserServiceImpl implements UserService {
         return ClinicUtils.getResponseEntity(ClinicConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @Override
-    public ResponseEntity<String> updateStatus(Map<String, String> requestMap) {
-        try {
-            if (jwtFilter.isAdmin()) {
-                Optional<User> optional = userRepository.findById(Integer.parseInt(requestMap.get("id")));
-                if (!optional.isEmpty()) {
-                    userRepository.updateStatus(requestMap.get("status"), Integer.parseInt(requestMap.get("id")));
-                    sendMailToAllAdmin(requestMap.get("status"), optional.get().getEmail(), userRepository.getAllAdmin());
-                    return ClinicUtils.getResponseEntity("User Status Updated Successfully", HttpStatus.OK);
-                } else {
-                    return ClinicUtils.getResponseEntity("User id doesn't not exist", HttpStatus.OK);
-                }
-            } else {
-                return ClinicUtils.getResponseEntity(ClinicConstants.UNAUTHORIZED_ACCESS, HttpStatus.UNAUTHORIZED);
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        return ClinicUtils.getResponseEntity(ClinicConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
 
     @Transactional
     @Override
@@ -338,25 +283,6 @@ public class UserServiceImpl implements UserService {
         return ClinicUtils.getResponseEntity("Contraseña actualizada correctamente", HttpStatus.OK);
     }
 
-    private boolean validateSignUpMap(Map<String, String> requestMap) {
-        if (requestMap.containsKey("name") && requestMap.containsKey("contactNumber")
-                && requestMap.containsKey("email") && requestMap.containsKey("password")) {
-            return true;
-        }
-        return false;
-
-    }
-
-    private User getUserFromMap(Map<String, String> requestMap) {
-        User user = new User();
-        user.setName(requestMap.get("name"));
-        user.setContactNumber(requestMap.get("contactNumber"));
-        user.setEmail(requestMap.get("email"));
-        user.setPassword(passwordEncoder.encode(requestMap.get("password")));
-        user.setStatus("false");
-        user.setRole("user");
-        return user;
-    }
 
     public void sendMailToAllAdmin(String status, String userEmail, List<String> adminEmails) {
         String adminEmail = jwtFilter.getCurrentUser();

@@ -1,14 +1,10 @@
 package com.edwin.clinic.restImpl;
 
 import com.edwin.clinic.constants.ClinicConstants;
-import com.edwin.clinic.dto.user.LoginDTO;
-import com.edwin.clinic.dto.user.UserDTO;
-import com.edwin.clinic.dto.user.UserListDTO;
-import com.edwin.clinic.dto.user.UserUpdateDTO;
+import com.edwin.clinic.dto.user.*;
 import com.edwin.clinic.rest.UserRest;
 import com.edwin.clinic.service.UserService;
 import com.edwin.clinic.utils.ClinicUtils;
-import com.edwin.clinic.wrapper.UserWrapper;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -57,7 +53,6 @@ public class UserRestImpl implements UserRest {
         }
     }
 
-
     @Override
     public ResponseEntity<String> updateProfile(UserUpdateDTO dto) {
         try {
@@ -70,19 +65,9 @@ public class UserRestImpl implements UserRest {
 
 
     @Override
-    public ResponseEntity<String> update(Map<String, String> requestMap) {
+    public ResponseEntity<String> updateStatus(UserStatusDTO dto) {
         try {
-            return userService.updateUser(requestMap);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        return ClinicUtils.getResponseEntity(ClinicConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-    @Override
-    public ResponseEntity<String> updateStatus(Map<String, String> requestMap) {
-        try {
-            return userService.updateStatus(requestMap);
+            return userService.updateUserStatus(dto);
         } catch (Exception ex) {
             ex.printStackTrace();
         }

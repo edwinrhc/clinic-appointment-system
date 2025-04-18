@@ -1,10 +1,7 @@
 package com.edwin.clinic.rest;
 
-import com.edwin.clinic.dto.user.LoginDTO;
-import com.edwin.clinic.dto.user.UserDTO;
-import com.edwin.clinic.dto.user.UserListDTO;
-import com.edwin.clinic.dto.user.UserUpdateDTO;
-import com.edwin.clinic.wrapper.UserWrapper;
+import com.edwin.clinic.dto.user.*;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -36,14 +33,9 @@ public interface UserRest {
     @PutMapping("/update-profile")
     public ResponseEntity<String> updateProfile(@RequestBody @Valid UserUpdateDTO dto);
 
+    @PutMapping("/status")
+    public ResponseEntity<String> updateStatus(@RequestBody @Valid UserStatusDTO dto);
 
-
-
-    @PostMapping(path="/update")
-    public ResponseEntity<String> update(@RequestBody(required = true) Map<String,String> requestMap);
-
-    @PostMapping(path="/status")
-    public ResponseEntity<String> updateStatus(@RequestBody(required = true) Map<String,String> requestMap);
 
     @PostMapping(path="/forgotPassword")
     public ResponseEntity<String> forgotPassword(@RequestBody Map<String,String> requestMap);

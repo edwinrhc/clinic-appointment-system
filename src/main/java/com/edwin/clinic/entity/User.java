@@ -10,11 +10,6 @@ import org.hibernate.annotations.DynamicUpdate;
 import java.io.Serializable;
 
 
-@NamedQuery(name="User.updateStatus",query = "update User u set u.status=:status where  u.id=:id")
-
-@NamedQuery(name="User.getAllAdmin", query = "select u.email from User u where u.role='admin'")
-
-
 @Entity
 @Table(name = "user")
 @Data
