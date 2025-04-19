@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 import java.util.Optional;
 
 public interface AppointmentRepository extends JpaRepository<Appointment,Integer> {
@@ -20,6 +21,12 @@ public interface AppointmentRepository extends JpaRepository<Appointment,Integer
     Optional<Appointment> findDuplicatePatientAppointment(@Param("patientId") Integer patientId,
                                                           @Param("date") LocalDate date,
                                                           @Param("hora") LocalTime hora);
+
+
+    List<Appointment> findByPatientId(Integer patientId);
+
+    List<Appointment> findByDoctorId(Integer doctorId);
+
 
 
 }

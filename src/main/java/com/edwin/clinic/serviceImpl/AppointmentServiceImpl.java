@@ -2,6 +2,7 @@ package com.edwin.clinic.serviceImpl;
 
 import com.edwin.clinic.constants.ClinicConstants;
 import com.edwin.clinic.dto.appointment.AppointmentRequestDTO;
+import com.edwin.clinic.dto.appointment.AppointmentResponseDTO;
 import com.edwin.clinic.entity.Appointment;
 import com.edwin.clinic.entity.User;
 import com.edwin.clinic.jwt.JwtFilter;
@@ -17,6 +18,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -77,4 +80,49 @@ public class AppointmentServiceImpl implements AppointmentService {
         appointment.setStatus("PENDING");
         return appointment;
     }
+
+    @Override
+    public ResponseEntity<List<AppointmentResponseDTO>> getAppointmentsByPatient(Integer patientId) {
+        try{
+
+            List<Appointment> appointments = appointmentRepository.findByPatientId(patientId);
+            List<AppointmentResponseDTO> response = appointments.stream().map(a -> {
+                return new AppointmentResponseDTO(
+                        a.getDoctor().getName(),
+                        a.getPatient().getName(),
+                        a.getDoctor().getSpecialty().getName(),
+                        a.getDate().toString(),
+                        a.getHora().toString(),
+                        a.getStatus()
+                );
+            }).toList();
+
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }catch (Exception e){
+            e.printStackTrace();
+            return new ResponseEntity<>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Override
+    public ResponseEntity<List<AppointmentResponseDTO>> getAppointmentsByDoctor(Integer doctorId) {
+        try{
+            List<Appointment> appointments = appointmentRepository.findByDoctorId(doctorId);
+            List<AppointmentResponseDTO> response = appointments.stream().map(a -> new AppointmentResponseDTO(
+                    a.getDoctor().getName(),
+                    a.getPatient().getName(),
+                    a.getDoctor().getSpecialty().getName(),
+                    a.getDate().toString(),
+                    a.getHora().toString(),
+                    a.getStatus()
+            )).toList();
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }catch (Exception e){
+            e.printStackTrace();
+            return new ResponseEntity<>(new ArrayList<>(),HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+    }
+
+
 }
