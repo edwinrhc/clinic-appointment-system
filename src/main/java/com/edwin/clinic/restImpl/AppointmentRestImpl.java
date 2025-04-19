@@ -1,6 +1,7 @@
 package com.edwin.clinic.restImpl;
 
 import com.edwin.clinic.constants.ClinicConstants;
+import com.edwin.clinic.dto.appointment.AppointmentPaymentDTO;
 import com.edwin.clinic.dto.appointment.AppointmentRequestDTO;
 import com.edwin.clinic.dto.appointment.AppointmentResponseDTO;
 import com.edwin.clinic.dto.appointment.AppointmentStatusUpdateDTO;
@@ -70,5 +71,15 @@ public class AppointmentRestImpl implements AppointmentRest {
             e.printStackTrace();
             return new ResponseEntity<>(new ArrayList<>(),HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @Override
+    public ResponseEntity<String> processPayment( AppointmentPaymentDTO dto) {
+        try{
+            return appointmentService.proccessPayment(dto);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return ClinicUtils.getResponseEntity(ClinicConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

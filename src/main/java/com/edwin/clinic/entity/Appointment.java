@@ -36,5 +36,8 @@ public class Appointment {
     @JoinColumn(name="doctor_id")
     private User doctor;
 
+    @Column(name="payment_status")
+    private String paymentStatus; //PENDING, PAID, FAILED
+
 
 }

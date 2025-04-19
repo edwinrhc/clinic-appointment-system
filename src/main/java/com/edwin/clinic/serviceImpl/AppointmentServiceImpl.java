@@ -1,6 +1,7 @@
 package com.edwin.clinic.serviceImpl;
 
 import com.edwin.clinic.constants.ClinicConstants;
+import com.edwin.clinic.dto.appointment.AppointmentPaymentDTO;
 import com.edwin.clinic.dto.appointment.AppointmentRequestDTO;
 import com.edwin.clinic.dto.appointment.AppointmentResponseDTO;
 import com.edwin.clinic.dto.appointment.AppointmentStatusUpdateDTO;
@@ -28,10 +29,10 @@ import java.util.Optional;
 public class AppointmentServiceImpl implements AppointmentService {
 
     @Autowired
-    AppointmentRepository  appointmentRepository;
+    AppointmentRepository appointmentRepository;
 
     @Autowired
-    UserRepository  userRepository;
+    UserRepository userRepository;
 
     @Autowired
     JwtFilter jwtFilter;
@@ -39,7 +40,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Override
     public ResponseEntity<String> registerAppointment(AppointmentRequestDTO appointmentRequestDTO) {
         log.info("Iniciando appointment: {}", appointmentRequestDTO);
-        try{
+        try {
             Optional<User> patient = userRepository.findById(appointmentRequestDTO.getPatientId());
             Optional<User> doctor = userRepository.findById(appointmentRequestDTO.getDoctorId());
 
@@ -50,28 +51,28 @@ public class AppointmentServiceImpl implements AppointmentService {
             LocalTime appointmentTime = LocalTime.parse(appointmentRequestDTO.getTime());
 
             Optional<Appointment> duplicate = appointmentRepository.findDuplicateAppointment(
-                    appointmentRequestDTO.getDoctorId(),appointmentDate,appointmentTime);
+                    appointmentRequestDTO.getDoctorId(), appointmentDate, appointmentTime);
 
-            if(duplicate.isPresent()){
+            if (duplicate.isPresent()) {
                 return ClinicUtils.getResponseEntity("Doctor is not available at the selected date and time", HttpStatus.CONFLICT);
             }
 
             Optional<Appointment> patientConflict = appointmentRepository.findDuplicatePatientAppointment(
-                    appointmentRequestDTO.getPatientId(),appointmentDate,appointmentTime);
-            if(patientConflict.isPresent()){
+                    appointmentRequestDTO.getPatientId(), appointmentDate, appointmentTime);
+            if (patientConflict.isPresent()) {
                 return ClinicUtils.getResponseEntity("You already have an appointment at this time", HttpStatus.CONFLICT);
             }
 
-            Appointment appointment = toEntity(appointmentRequestDTO,patient.get(),doctor.get());
+            Appointment appointment = toEntity(appointmentRequestDTO, patient.get(), doctor.get());
             appointmentRepository.save(appointment);
             return ClinicUtils.getResponseEntity("Successfully Registered", HttpStatus.OK);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
-        return ClinicUtils.getResponseEntity(ClinicConstants.SOMETHING_WENT_WRONG,HttpStatus.INTERNAL_SERVER_ERROR);
+        return ClinicUtils.getResponseEntity(ClinicConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    private Appointment toEntity(AppointmentRequestDTO appointmentRequestDTO, User patient,User doctor) {
+    private Appointment toEntity(AppointmentRequestDTO appointmentRequestDTO, User patient, User doctor) {
 
         Appointment appointment = new Appointment();
         appointment.setPatient(patient);
@@ -84,7 +85,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Override
     public ResponseEntity<List<AppointmentResponseDTO>> getAppointmentsByPatient(Integer patientId) {
-        try{
+        try {
 
             List<Appointment> appointments = appointmentRepository.findByPatientId(patientId);
             List<AppointmentResponseDTO> response = appointments.stream().map(a -> {
@@ -99,7 +100,7 @@ public class AppointmentServiceImpl implements AppointmentService {
             }).toList();
 
             return new ResponseEntity<>(response, HttpStatus.OK);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             return new ResponseEntity<>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -107,7 +108,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Override
     public ResponseEntity<List<AppointmentResponseDTO>> getAppointmentsByDoctor(Integer doctorId) {
-        try{
+        try {
             List<Appointment> appointments = appointmentRepository.findByDoctorId(doctorId);
             List<AppointmentResponseDTO> response = appointments.stream().map(a -> new AppointmentResponseDTO(
                     a.getDoctor().getName(),
@@ -118,16 +119,16 @@ public class AppointmentServiceImpl implements AppointmentService {
                     a.getStatus()
             )).toList();
             return new ResponseEntity<>(response, HttpStatus.OK);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
-            return new ResponseEntity<>(new ArrayList<>(),HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
     }
 
     @Override
     public ResponseEntity<String> updateAppointmentStatus(Long appointmentId, AppointmentStatusUpdateDTO appointmentStatusUpdateDTO) {
-        try{
+        try {
             Optional<Appointment> optionalAppointment = appointmentRepository.findById(appointmentId);
             if (optionalAppointment.isEmpty()) {
                 return ClinicUtils.getResponseEntity("Appointment not found", HttpStatus.NOT_FOUND);
@@ -137,29 +138,56 @@ public class AppointmentServiceImpl implements AppointmentService {
             appointmentRepository.save(appointment);
 
             return ClinicUtils.getResponseEntity("Appointment status updated successfully", HttpStatus.OK);
-        }catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
-            return ClinicUtils.getResponseEntity(ClinicConstants.SOMETHING_WENT_WRONG,HttpStatus.INTERNAL_SERVER_ERROR);
+            return ClinicUtils.getResponseEntity(ClinicConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
 
     @Override
     public ResponseEntity<List<AppointmentResponseDTO>> getAppointmentsByStatus(String status) {
-       try {
-           List<Appointment> appointments = appointmentRepository.findByStatusIgnoreCase(status);
-           List<AppointmentResponseDTO> response = appointments.stream().map(a -> new AppointmentResponseDTO(
-                   a.getDoctor().getName(),
-                   a.getPatient().getName(),
-                   a.getDoctor().getSpecialty().getName(),
-                   a.getDate().toString(),
-                   a.getHora().toString(),
-                   a.getStatus()
-           )).toList();
-           return new ResponseEntity<>(response, HttpStatus.OK);
-       }catch (Exception e){
-           e.printStackTrace();
-           return new ResponseEntity<>(new ArrayList<>(),HttpStatus.INTERNAL_SERVER_ERROR);
-       }
+        try {
+            List<Appointment> appointments = appointmentRepository.findByStatusIgnoreCase(status);
+            List<AppointmentResponseDTO> response = appointments.stream().map(a -> new AppointmentResponseDTO(
+                    a.getDoctor().getName(),
+                    a.getPatient().getName(),
+                    a.getDoctor().getSpecialty().getName(),
+                    a.getDate().toString(),
+                    a.getHora().toString(),
+                    a.getStatus()
+            )).toList();
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Override
+    public ResponseEntity<String> proccessPayment(AppointmentPaymentDTO dto) {
+        log.info("Inside : {}", dto);
+        try {
+            Optional<Appointment> optional = appointmentRepository.findById(dto.getAppointmentId());
+            if (optional.isEmpty()) {
+                return ClinicUtils.getResponseEntity("Appointment not found", HttpStatus.NOT_FOUND);
+            }
+            Appointment appointment = optional.get();
+
+            if ("PAID".equalsIgnoreCase(appointment.getPaymentStatus())) {
+                return ClinicUtils.getResponseEntity("Appointment already paid", HttpStatus.BAD_REQUEST);
+            }
+
+            //Aqui podemos agregar pasarela de pago real
+            appointment.setPaymentStatus("PAID");
+            appointment.setStatus("CONFIRMED");
+
+            appointmentRepository.save(appointment);
+            return ClinicUtils.getResponseEntity("Payment processed successfully", HttpStatus.OK);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ClinicUtils.getResponseEntity(ClinicConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }

@@ -1,6 +1,7 @@
 package com.edwin.clinic.rest;
 
 
+import com.edwin.clinic.dto.appointment.AppointmentPaymentDTO;
 import com.edwin.clinic.dto.appointment.AppointmentRequestDTO;
 import com.edwin.clinic.dto.appointment.AppointmentResponseDTO;
 import com.edwin.clinic.dto.appointment.AppointmentStatusUpdateDTO;
@@ -27,4 +28,7 @@ public interface AppointmentRest {
 
     @GetMapping("/by-status/{status}")
     public ResponseEntity<List<AppointmentResponseDTO>> getAppointmentByStatus(@PathVariable String status);
+
+    @PostMapping("/pay")
+    public ResponseEntity<String> processPayment(@RequestBody AppointmentPaymentDTO dto);
 }
