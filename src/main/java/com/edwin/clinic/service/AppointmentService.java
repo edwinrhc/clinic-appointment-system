@@ -2,6 +2,7 @@ package com.edwin.clinic.service;
 
 import com.edwin.clinic.dto.appointment.AppointmentRequestDTO;
 import com.edwin.clinic.dto.appointment.AppointmentResponseDTO;
+import com.edwin.clinic.dto.appointment.AppointmentStatusUpdateDTO;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
@@ -14,4 +15,7 @@ public interface AppointmentService {
 
     ResponseEntity<List<AppointmentResponseDTO>> getAppointmentsByDoctor(Integer doctorId);
 
+    ResponseEntity<String>updateAppointmentStatus(Long appointmentId, AppointmentStatusUpdateDTO appointmentStatusUpdateDTO);
+
+    ResponseEntity<List<AppointmentResponseDTO>> getAppointmentsByStatus(String status);
 }

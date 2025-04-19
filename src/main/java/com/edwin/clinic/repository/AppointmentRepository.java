@@ -10,7 +10,7 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
-public interface AppointmentRepository extends JpaRepository<Appointment,Integer> {
+public interface AppointmentRepository extends JpaRepository<Appointment,Long> {
 
     @Query("SELECT a FROM Appointment a WHERE a.doctor.id = :doctorId And a.date = :date AND a.hora = :hora")
     Optional<Appointment> findDuplicateAppointment(@Param("doctorId")Integer doctorId,
@@ -27,6 +27,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment,Integer
 
     List<Appointment> findByDoctorId(Integer doctorId);
 
+    List<Appointment> findByStatusIgnoreCase(String status);
 
 
 }

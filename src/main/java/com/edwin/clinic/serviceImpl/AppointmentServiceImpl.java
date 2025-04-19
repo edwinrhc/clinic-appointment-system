@@ -3,6 +3,7 @@ package com.edwin.clinic.serviceImpl;
 import com.edwin.clinic.constants.ClinicConstants;
 import com.edwin.clinic.dto.appointment.AppointmentRequestDTO;
 import com.edwin.clinic.dto.appointment.AppointmentResponseDTO;
+import com.edwin.clinic.dto.appointment.AppointmentStatusUpdateDTO;
 import com.edwin.clinic.entity.Appointment;
 import com.edwin.clinic.entity.User;
 import com.edwin.clinic.jwt.JwtFilter;
@@ -124,5 +125,41 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     }
 
+    @Override
+    public ResponseEntity<String> updateAppointmentStatus(Long appointmentId, AppointmentStatusUpdateDTO appointmentStatusUpdateDTO) {
+        try{
+            Optional<Appointment> optionalAppointment = appointmentRepository.findById(appointmentId);
+            if (optionalAppointment.isEmpty()) {
+                return ClinicUtils.getResponseEntity("Appointment not found", HttpStatus.NOT_FOUND);
+            }
+            Appointment appointment = optionalAppointment.get();
+            appointment.setStatus(appointmentStatusUpdateDTO.getStatus().toUpperCase());
+            appointmentRepository.save(appointment);
 
+            return ClinicUtils.getResponseEntity("Appointment status updated successfully", HttpStatus.OK);
+        }catch(Exception e){
+            e.printStackTrace();
+            return ClinicUtils.getResponseEntity(ClinicConstants.SOMETHING_WENT_WRONG,HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+    @Override
+    public ResponseEntity<List<AppointmentResponseDTO>> getAppointmentsByStatus(String status) {
+       try {
+           List<Appointment> appointments = appointmentRepository.findByStatusIgnoreCase(status);
+           List<AppointmentResponseDTO> response = appointments.stream().map(a -> new AppointmentResponseDTO(
+                   a.getDoctor().getName(),
+                   a.getPatient().getName(),
+                   a.getDoctor().getSpecialty().getName(),
+                   a.getDate().toString(),
+                   a.getHora().toString(),
+                   a.getStatus()
+           )).toList();
+           return new ResponseEntity<>(response, HttpStatus.OK);
+       }catch (Exception e){
+           e.printStackTrace();
+           return new ResponseEntity<>(new ArrayList<>(),HttpStatus.INTERNAL_SERVER_ERROR);
+       }
+    }
 }
