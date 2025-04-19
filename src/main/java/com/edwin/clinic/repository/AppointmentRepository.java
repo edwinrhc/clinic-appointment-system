@@ -29,5 +29,15 @@ public interface AppointmentRepository extends JpaRepository<Appointment,Long> {
 
     List<Appointment> findByStatusIgnoreCase(String status);
 
+    @Query("SELECT a.status, COUNT(a) FROM Appointment a GROUP BY a.status")
+    List<Object[]> countAppointmentsByStatus();
+
+    List<Appointment> findByDate(LocalDate date);
+
+    @Query("SELECT a.doctor.name, a.doctor.specialty.name, COUNT(a) " +
+           "FROM Appointment a GROUP BY a.doctor.name, a.doctor.specialty.name " +
+            "ORDER BY count(a) DESC")
+    List<Object[]> getDoctorRanking();
+
 
 }
