@@ -13,6 +13,7 @@ Este es un sistema backend para la gestión de citas médicas desarrollado con *
 - Arquitectura limpia (controller, service, repository, utils)
 - Base de datos MySQL
 - Spring Boot 3.x y Java 17
+- Docker
 
 ---
 
@@ -75,5 +76,25 @@ spring.datasource.username=root
 spring.datasource.password=123456
 spring.jpa.hibernate.ddl-auto=update
 jwt.secret=UEZyZk1XM2dBTDFuU2t5djE4eUZnZkNMaGtsZGx4Nmk= # mínimo 32 caracteres
+
+
+```
+## 🐳 Despliegue con Docker y Docker Compose
+
+### ⚙️ Requisitos
+
+- Docker Desktop
+- Maven instalado (o usar `./mvnw` si está en el proyecto)
+- Puerto `3307` disponible en tu máquina
+
+---
+
+### 📦 Paso 1: Empaquetar el proyecto
+
+```bash
+./mvnw clean package -DskipTests
+```
+```bash
+docker-compose up --build
 
 
